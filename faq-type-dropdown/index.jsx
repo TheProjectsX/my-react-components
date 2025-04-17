@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useId } from "react";
-import { IoIosArrowDown } from "react-icons/io";
 
 const Dropdown = ({ children, className, label, border = false }) => {
     const uid = useId();
