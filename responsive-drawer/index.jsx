@@ -36,8 +36,8 @@ const Drawer = ({ children, drawerContent, drawerOpened, setDrawerOpened }) => {
                     {drawerContent}
                 </div>
                 {/* Controller */}
-                <Button
-                    className={`absolute top-5 -right-4 bg-white border border-neutral-400 !px-1.5 !py-1.5 hidden lg:block`}
+                <button
+                    className={`p-1.5 rounded-full hover:bg-slate-200 cursor-pointer items-center active:scale-90 transition-[scale] duration-300 absolute top-5 -right-4 bg-white border border-neutral-400 hidden lg:flex`}
                     onClick={(e) => setDrawerOpened((prev) => !prev)}
                 >
                     {drawerOpened ? (
@@ -45,11 +45,11 @@ const Drawer = ({ children, drawerContent, drawerOpened, setDrawerOpened }) => {
                     ) : (
                         <MdKeyboardDoubleArrowRight className="text-lg" />
                     )}
-                </Button>
+                </button>
             </div>
 
             {/* Content */}
-            <div className="grow relative">
+            <div className="grow relative h-full overflow-y-auto">
                 {children}
 
                 {/* Black cover for Drawer */}
