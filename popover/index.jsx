@@ -21,6 +21,7 @@ const Popover = ({
         ref: triggerRef,
         className: `${children.props.className || ""} peer`,
         "data-name": "popover-trigger",
+        tabIndex: 0,
     });
 
     useEffect(() => {
@@ -112,13 +113,18 @@ const Popover = ({
     }, [position, axis]);
 
     return (
-        <div data-name="popover-container" className="w-fit relative">
+        <div
+            data-name="popover-container"
+            className="w-fit relative group"
+            tabIndex={-1}
+        >
             {clonedTrigger}
             <div
                 data-name="popover-content"
-                className={`w-max absolute invisible peer-focus:visible hover:visible focus:visible shadow-[0_0_10px_rgba(0,0,0,0.1)] bg-white z-[999] ${className}`}
+                className={`w-max absolute invisible peer-focus:visible group-focus-within:visible shadow-[0_0_10px_rgba(0,0,0,0.1)] bg-white z-[999] ${className}`}
                 style={popoverStyle.content}
                 ref={contentRef}
+                tabIndex={0}
             >
                 {content}
                 {indicator && (
