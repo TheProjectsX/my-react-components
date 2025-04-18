@@ -36,4 +36,5 @@ export default Page;
     -   `top`, `bottom` (default), `left`, `right`
 -   `axis`: In which axis will the content be shown. Options:
     -   `center` (Default), `top`, `bottom`, `left`, `right`
+-   `viewOnHover`: Views content when hover-ed on trigger, instead of click. Expects Boolean (Default `true`)
 -   `indicator`: If the indicator should be visible or not. Expects Boolean (Default `true`)

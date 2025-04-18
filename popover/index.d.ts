@@ -6,6 +6,7 @@ export interface PopoverProps {
     className?: string;
     position?: "top" | "bottom" | "left" | "right";
     axis?: "top" | "bottom" | "left" | "right" | "center";
+    viewOnHover?: boolean;
     indicator?: boolean;
 }
 

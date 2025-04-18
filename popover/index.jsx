@@ -8,6 +8,7 @@ const Popover = ({
     className = "",
     position = "bottom",
     axis = "center",
+    viewOnHover = false,
     indicator = true,
 }) => {
     const triggerRef = useRef(null);
@@ -141,7 +142,11 @@ const Popover = ({
             {clonedTrigger}
             <div
                 data-name="popover-content"
-                className={`w-max absolute invisible peer-focus:visible group-focus-within:visible shadow-[0_0_10px_rgba(0,0,0,0.1)] bg-white z-[999] ${className}`}
+                className={`w-max absolute invisible shadow-[0_0_10px_rgba(0,0,0,0.1)] bg-white z-[999] ${
+                    viewOnHover
+                        ? " transition-[visibility] delay-200 peer-hover:visible group-hover:visible hover:visible"
+                        : "peer-focus:visible group-focus-within:visible"
+                } ${className}`}
                 style={popoverStyle.content}
                 ref={contentRef}
                 tabIndex={0}
