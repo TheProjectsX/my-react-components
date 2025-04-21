@@ -11,11 +11,14 @@ const Popover = ({
     axis = "center",
     triggerType = "auto",
     contentVisible = false,
+    onWrapperBlur = () => {},
     viewOnHover = false,
     indicator = true,
 }) => {
+    const wrapperRef = useRef(null);
     const triggerRef = useRef(null);
     const contentRef = useRef(null);
+
     const [popoverStyle, setPopoverStyle] = useState({
         content: {},
         indicator: {},
@@ -136,12 +139,35 @@ const Popover = ({
         };
     }, []);
 
+    // Check if container blurred
+    useEffect(() => {
+        const handleWindowClick = (e) => {
+            const target = e.target;
+
+            if (
+                wrapperRef.current &&
+                contentRef.current &&
+                !wrapperRef.current.contains(target) &&
+                !contentRef.current.contains(target)
+            ) {
+                onWrapperBlur();
+            }
+        };
+
+        window.addEventListener("click", handleWindowClick);
+
+        return () => {
+            document.removeEventListener("click", handleWindowClick);
+        };
+    }, []);
+
     return (
         <div
             data-name="popover-container"
             className="w-fit relative group"
             tabIndex={-1}
             style={parentStyles}
+            ref={wrapperRef}
         >
             {clonedTrigger}
 

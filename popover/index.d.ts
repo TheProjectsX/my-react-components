@@ -9,6 +9,7 @@ export interface PopoverProps {
     axis?: "top" | "bottom" | "left" | "right" | "center";
     triggerType?: "auto" | "manual";
     contentVisible?: boolean;
+    onWrapperBlur?: () => void;
     viewOnHover?: boolean;
     indicator?: boolean;
 }

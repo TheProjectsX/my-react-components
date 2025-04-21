@@ -39,5 +39,6 @@ export default Page;
     -   `center` (Default), `top`, `bottom`, `left`, `right`
 -   `triggerType`: Should the Popover be triggered `auto` or `manual`. Manual type will require below property also:
 -   `contentVisible`: If the `content` is visible or not. Expects Boolean (Default `false`)
+-   `onWrapperBlur`: Takes a function as an property. Runs when user clicks outside the Popover wrapper
 -   `viewOnHover`: Views content when hover-ed on trigger, instead of click. Expects Boolean (Default `true`)
 -   `indicator`: If the indicator should be visible or not. Expects Boolean (Default `true`)
