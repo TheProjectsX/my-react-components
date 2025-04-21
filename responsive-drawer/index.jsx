@@ -13,7 +13,7 @@ const Drawer = ({ children, drawerContent, drawerOpened, setDrawerOpened }) => {
                 "--drawer-size": "272px",
                 "--shrink-visible": "24px",
             }}
-            className={`relative h-full flex`}
+            className={`relative h-full flex overflow-hidden`}
         >
             {/* Drawer */}
             <div
@@ -48,7 +48,11 @@ const Drawer = ({ children, drawerContent, drawerOpened, setDrawerOpened }) => {
             </div>
 
             {/* Content */}
-            <div className="grow relative h-full overflow-y-auto">
+            <div
+                className={`grow relative h-full scrollbar-thin ${
+                    drawerOpened ? "lg:overflow-y-auto" : "overflow-y-auto"
+                }`}
+            >
                 {children}
 
                 {/* Black cover for Drawer */}
@@ -57,6 +61,7 @@ const Drawer = ({ children, drawerContent, drawerOpened, setDrawerOpened }) => {
                         drawerOpened ? "lg:hidden" : "hidden"
                     }`}
                     onClick={() => setDrawerOpened(false)}
+                    onScroll={(e) => e.preventDefault()}
                 ></div>
             </div>
         </div>
