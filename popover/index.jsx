@@ -5,9 +5,12 @@ import React, { useLayoutEffect, useRef, useState } from "react";
 const Popover = ({
     children,
     content,
+    parentStyles = {},
     className = "",
     position = "bottom",
     axis = "center",
+    triggerType = "auto",
+    contentVisible = false,
     viewOnHover = false,
     indicator = true,
 }) => {
@@ -138,14 +141,21 @@ const Popover = ({
             data-name="popover-container"
             className="w-fit relative group"
             tabIndex={-1}
+            style={parentStyles}
         >
             {clonedTrigger}
+
+            {/* Content */}
             <div
                 data-name="popover-content"
                 className={`w-max absolute invisible shadow-[0_0_10px_rgba(0,0,0,0.1)] bg-white z-[999] ${
-                    viewOnHover
-                        ? " transition-[visibility] delay-200 peer-hover:visible group-hover:visible hover:visible"
-                        : "peer-focus:visible group-focus-within:visible"
+                    triggerType === "auto"
+                        ? viewOnHover
+                            ? "transition-[visibility] delay-200 peer-hover:visible group-hover:visible hover:visible"
+                            : "peer-focus:visible group-focus-within:visible"
+                        : contentVisible
+                        ? "!visible"
+                        : ""
                 } ${className}`}
                 style={popoverStyle.content}
                 ref={contentRef}
