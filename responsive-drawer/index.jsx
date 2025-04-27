@@ -6,7 +6,13 @@ import {
     MdKeyboardDoubleArrowRight,
 } from "react-icons/md";
 
-const Drawer = ({ children, drawerContent, drawerOpened, setDrawerOpened }) => {
+const Drawer = ({
+    children,
+    drawerContent,
+    drawerOpened,
+    onDrawerOpened,
+    onDrawerClosed,
+}) => {
     return (
         <div
             style={{
@@ -37,7 +43,9 @@ const Drawer = ({ children, drawerContent, drawerOpened, setDrawerOpened }) => {
                 {/* Controller */}
                 <button
                     className={`p-1.5 rounded-full hover:bg-slate-200 cursor-pointer items-center active:scale-90 transition-[scale] duration-300 absolute top-5 -right-4 bg-white border border-neutral-400 hidden lg:flex`}
-                    onClick={(e) => setDrawerOpened((prev) => !prev)}
+                    onClick={() =>
+                        drawerOpened ? onDrawerClosed() : onDrawerOpened()
+                    }
                 >
                     {drawerOpened ? (
                         <MdKeyboardDoubleArrowLeft className="text-lg" />
@@ -60,7 +68,7 @@ const Drawer = ({ children, drawerContent, drawerOpened, setDrawerOpened }) => {
                     className={`absolute inset-0 bg-black/15 ${
                         drawerOpened ? "lg:hidden" : "hidden"
                     }`}
-                    onClick={() => setDrawerOpened(false)}
+                    onClick={() => onDrawerClosed()}
                     onScroll={(e) => e.preventDefault()}
                 ></div>
             </div>

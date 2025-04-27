@@ -4,7 +4,8 @@ export interface DrawerProps {
     children: React.ReactNode;
     drawerContent: React.ReactNode;
     drawerOpened: boolean;
-    setDrawerOpened: React.Dispatch<React.SetStateAction<boolean>>;
+    onDrawerOpened: () => void;
+    onDrawerClosed: () => void;
 }
 
 export default function Drawer(props: DrawerProps): React.ReactElement;
