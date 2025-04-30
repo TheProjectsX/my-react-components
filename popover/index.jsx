@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 const Popover = ({
     children,
@@ -14,7 +14,10 @@ const Popover = ({
     onWrapperBlur = () => {},
     viewOnHover = false,
     indicator = true,
+    closeOnClick = true,
 }) => {
+    const [popoverOpened, setPopoverOpened] = useState(false);
+
     const wrapperRef = useRef(null);
     const triggerRef = useRef(null);
     const contentRef = useRef(null);
@@ -29,14 +32,74 @@ const Popover = ({
         className: `${children.props.className || ""} peer`,
         "data-name": "popover-trigger",
         tabIndex: 0,
+        onClick: () =>
+            triggerType === "auto"
+                ? setPopoverOpened((prev) => (closeOnClick ? !prev : prev))
+                : null,
     });
 
-    // This func will calculate the positions of the content
+    const calculatePosition = (position, gap, triggerRect, contentRect) => {
+        const innerWidth = window.innerWidth;
+        const innerHeight = window.innerHeight;
+
+        const oppositePosition = {
+            top: "bottom",
+            bottom: "top",
+            left: "right",
+            right: "left",
+        };
+
+        const possiblePositions = [];
+
+        if (triggerRect.top - gap - contentRect.height > 0) {
+            possiblePositions.push("top");
+        }
+
+        if (triggerRect.bottom + gap + contentRect.height < innerHeight) {
+            possiblePositions.push("bottom");
+        }
+
+        if (triggerRect.left - gap - contentRect.width > 0) {
+            possiblePositions.push("left");
+        }
+
+        if (triggerRect.right + gap + contentRect.width < innerWidth) {
+            possiblePositions.push("right");
+        }
+
+        if (possiblePositions.includes(position)) return position;
+
+        if (possiblePositions.includes(oppositePosition[position]))
+            return oppositePosition[position];
+
+        if (possiblePositions.length > 0) return possiblePositions[0];
+
+        if (position === "top" || position === "bottom") {
+            const topSpace = triggerRect.top - gap - contentRect.height;
+            const bottomSpace =
+                innerHeight - triggerRect.bottom + gap + contentRect.height;
+
+            return topSpace < bottomSpace ? "top" : "bottom";
+        }
+
+        if (position === "left" || position === "right") {
+            const leftSpace = triggerRect.left - gap - contentRect.width;
+            const rightSpace =
+                innerWidth - triggerRect.right + gap + contentRect.width;
+
+            return leftSpace < rightSpace ? "left" : "right";
+        }
+
+        return position;
+    };
+
     const updatePositions = () => {
         const gap = 10;
         const indicatorGap = 6;
         const triggerRect = triggerRef.current?.getBoundingClientRect();
         const contentRect = contentRef.current?.getBoundingClientRect();
+
+        if (!triggerRect || !contentRect) return;
 
         const contentWidth = contentRect?.width ?? 0;
         const contentHeight = contentRect?.height ?? 0;
@@ -58,26 +121,12 @@ const Popover = ({
             right: "left",
         };
 
-        const windowSize = {
-            width: window.innerWidth,
-            height: window.innerHeight,
-        };
-
-        let finalPosition = position;
-
-        if (
-            (position === "top" &&
-                (triggerRect?.top ?? 0) - gap - contentHeight < 0) ||
-            (position === "bottom" &&
-                (triggerRect?.bottom ?? 0) + gap + contentHeight >
-                    windowSize.height) ||
-            (position === "left" &&
-                (triggerRect?.left ?? 0) - gap - contentWidth < 0) ||
-            (position === "right" &&
-                (triggerRect?.right ?? 0) + gap + contentWidth < 0)
-        ) {
-            finalPosition = oppositeSide[position];
-        }
+        const finalPosition = calculatePosition(
+            position,
+            gap,
+            triggerRect,
+            contentRect
+        );
 
         popoverIndicatorStyles[oppositeSide[finalPosition]] = `${
             indicatorGap * -1
@@ -92,35 +141,33 @@ const Popover = ({
             center: ["center"],
         };
 
-        const isSameAxis = oppositeAxis[axis].includes(position);
+        const sameAxis = oppositeAxis[axis]?.includes(position);
+        const axisToUse = axis === "center" || sameAxis ? "center" : axis;
 
-        const axisToUse =
-            axis === "center" ? "center" : isSameAxis ? "center" : axis;
+        if (axisToUse === "center") {
+            const isVertical = position === "top" || position === "bottom";
+            const offset = isVertical
+                ? contentWidth / 2 - triggerWidth / 2
+                : contentHeight / 2 - triggerHeight / 2;
 
-        if (axisToUse !== "center") {
+            const key = isVertical ? "left" : "top";
+            const centerIndicatorOffset = isVertical
+                ? contentWidth / 2 - 8
+                : contentHeight / 2 - 8;
+
+            popoverContentStyles[key] = `${-offset}px`;
+            popoverIndicatorStyles[key] = `${centerIndicatorOffset}px`;
+        } else {
             popoverContentStyles[axisToUse] = "0px";
             popoverIndicatorStyles[axisToUse] = `${indicatorGap}px`;
-        } else {
-            if (position === "top" || position === "bottom") {
-                const offsetLeft = contentWidth / 2 - triggerWidth / 2;
-
-                popoverContentStyles["left"] = `${offsetLeft * -1}px`;
-                popoverIndicatorStyles["left"] = `${contentWidth / 2 - 8}px`;
-            } else {
-                const offsetTop = contentHeight / 2 - triggerHeight / 2;
-
-                popoverContentStyles["top"] = `${offsetTop * -1}px`;
-                popoverIndicatorStyles["top"] = `${contentHeight / 2 - 8}px`;
-            }
         }
 
-        setPopoverStyle({
+        setPopoverStyle((prev) => ({
             content: popoverContentStyles,
             indicator: popoverIndicatorStyles,
-        });
+        }));
     };
 
-    // Observe any Changes in the doc
     useLayoutEffect(() => {
         const resizeObserver = new ResizeObserver(updatePositions);
         triggerRef.current && resizeObserver.observe(triggerRef.current);
@@ -129,7 +176,6 @@ const Popover = ({
         window.addEventListener("resize", updatePositions);
         window.addEventListener("scroll", updatePositions, true);
 
-        // initial call
         updatePositions();
 
         return () => {
@@ -139,9 +185,10 @@ const Popover = ({
         };
     }, []);
 
-    // Check if container blurred
     useEffect(() => {
         const handleWindowClick = (e) => {
+            if (!popoverOpened && !contentVisible) return;
+
             const target = e.target;
 
             if (
@@ -150,16 +197,27 @@ const Popover = ({
                 !wrapperRef.current.contains(target) &&
                 !contentRef.current.contains(target)
             ) {
+                if (triggerType === "auto") {
+                    setPopoverOpened(false);
+                }
                 onWrapperBlur();
+            } else if (
+                contentRef.current &&
+                contentRef.current.contains(target) &&
+                (target.closest("a") || target.closest("button"))
+            ) {
+                if (triggerType === "auto") {
+                    setPopoverOpened(false);
+                }
             }
         };
 
-        window.addEventListener("click", handleWindowClick);
+        document.addEventListener("click", handleWindowClick);
 
         return () => {
             document.removeEventListener("click", handleWindowClick);
         };
-    }, []);
+    }, [popoverOpened, contentVisible, triggerType]);
 
     return (
         <div
@@ -171,23 +229,27 @@ const Popover = ({
         >
             {clonedTrigger}
 
-            {/* Content */}
             <div
                 data-name="popover-content"
-                className={`w-max absolute invisible shadow-[0_0_10px_rgba(0,0,0,0.1)] bg-white z-[999] ${
-                    triggerType === "auto"
-                        ? viewOnHover
-                            ? "transition-[visibility] delay-200 peer-hover:visible group-hover:visible hover:visible"
-                            : "peer-focus:visible group-focus-within:visible"
-                        : contentVisible
-                        ? "!visible"
-                        : ""
-                } ${className}`}
+                className={`w-max absolute invisible bg-white shadow-[0_0_10px_rgba(0,0,0,0.1)] z-[999]
+                    ${
+                        triggerType === "auto"
+                            ? viewOnHover
+                                ? "transition-[visibility] delay-200 peer-hover:visible group-hover:visible hover:visible peer-focus:visible group-focus-within:visible focus:visible"
+                                : popoverOpened
+                                ? "!visible"
+                                : ""
+                            : contentVisible
+                            ? "!visible"
+                            : ""
+                    }
+                    ${className || ""}`}
                 style={popoverStyle.content}
                 ref={contentRef}
                 tabIndex={0}
             >
-                {content}
+                {content ?? ""}
+
                 {indicator && (
                     <div
                         data-name="popover-indicator"
