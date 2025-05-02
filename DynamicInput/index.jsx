@@ -3,14 +3,19 @@ import React, { useEffect, useState } from "react";
 const DynamicInput = ({
     onChange,
     children: CustomElement,
-    defaultItems = 2,
+    defaultValues = [],
+    defaultItemsCount = 2,
     minItems = 0,
     maxItems,
     className = "",
     addButtonLabel = "Add More",
     customAddButton,
 }) => {
-    const [values, setValues] = useState(new Array(defaultItems).fill(""));
+    const [values, setValues] = useState(
+        defaultValues.length < defaultItemsCount
+            ? new Array(defaultItemsCount).fill("")
+            : defaultValues
+    );
 
     const handleUpdateRecord = (idx, value) => {
         setValues((prev) =>

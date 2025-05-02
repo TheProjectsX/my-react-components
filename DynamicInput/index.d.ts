@@ -12,7 +12,8 @@ export interface DynamicInputProps {
             disabled: boolean;
         }
     ) => React.ReactElement;
-    defaultItems?: number;
+    defaultValues?: string[];
+    defaultItemsCount?: number;
     minItems?: number;
     maxItems?: number | null;
     className?: string;
