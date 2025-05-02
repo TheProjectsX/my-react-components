@@ -1,35 +1,24 @@
-import { ReactElement, InputHTMLAttributes, ReactNode } from "react";
+import * as React from "react";
 
 export interface DynamicInputProps {
-    handleAddItem: () => void;
-    handleUpdateRecord: (idx: number, value: any) => void;
-    handleRemoveItem: (idx: number) => void;
-    inputtedValues: any[];
-    className?: string;
-    addButtonLabel?: ReactNode | null;
-    customAddButton?: ReactElement<any, any> | null;
-    customInput?: ReactElement<InputHTMLAttributes<HTMLInputElement>> | null;
-    customRemoveButton?: ReactElement<any, any>;
-    addButtonDisabled?: boolean;
-    removeButtonsDisabled?: boolean;
-}
-
-declare const useDynamicInput: (config?: {
-    defaultCount?: number;
+    onChange: (values: string[]) => void;
+    children?: (
+        inputProps: {
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+            defaultValue: string;
+        },
+        removeButtonProps: {
+            onClick: (e: React.MouseEvent<HTMLElement>) => void;
+            disabled: boolean;
+        }
+    ) => React.ReactElement;
+    defaultItems?: number;
     minItems?: number;
     maxItems?: number | null;
-}) => {
-    DynamicInput: (props: {
-        className?: string;
-        addButtonLabel?: ReactNode | null;
-        customAddButton?: ReactElement<any, any> | null;
-        customInput?: ReactElement<
-            InputHTMLAttributes<HTMLInputElement>
-        > | null;
-    }) => JSX.Element;
-    values: any[];
-    handleAddItem: () => void;
-    handleRemoveItem: (idx: number) => void;
-};
+    className?: string;
+    addButtonLabel?: React.ReactNode | null;
+    customAddButton?: React.ReactElement<any, any> | null;
+}
 
-export default useDynamicInput;
+declare const DynamicInput: React.FC<DynamicInputProps>;
+export default DynamicInput;
